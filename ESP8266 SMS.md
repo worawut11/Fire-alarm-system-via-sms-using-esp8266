@@ -52,7 +52,7 @@
 
   3.ติดตั้งไลบรารีที่จำเป็น เช่น ESP8266WiFi และ ESP8266HTTPClient
   
-   ![image](file:///C:/Users/junio/Downloads/%E0%B8%AA%E0%B8%81%E0%B8%A3%E0%B8%B5%E0%B8%99%E0%B8%8A%E0%B9%87%E0%B8%AD%E0%B8%95%202024-12-11%20090816.html)
+   ![image]([file:///C:/Users/junio/Downloads/%E0%B8%AA%E0%B8%81%E0%B8%A3%E0%B8%B5%E0%B8%99%E0%B8%8A%E0%B9%87%E0%B8%AD%E0%B8%95%202024-12-11%20090816.html](https://github.com/worawut11/Fire-alarm-system-via-sms-using-esp8266/issues/1#issue-2731654148))
    
 การเชื่อมต่อ Wi-Fi:
 
