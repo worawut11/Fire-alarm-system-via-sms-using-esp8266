@@ -1,0 +1,76 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+
+// กำหนดค่าการเชื่อมต่อ WiFi
+const char* ssid = "ชื่อ WiFi";
+const char* password = "รหัสผ่าน WiFi";
+
+// Twilio API
+const String accountSID = "ใส่ Account SID ของ Twilio";
+const String authToken = "ใส่ Auth Token ของ Twilio";
+const String twilioPhone = "ใส่เบอร์โทรของ Twilio";
+const String userPhone = "ใส่เบอร์โทรของผู้ใช้งาน";
+
+// พินเซ็นเซอร์และรีเลย์
+const int smokeSensorPin = A0; // พิน Analog
+const int relayPin = D1;       // พินรีเลย์
+
+// ค่าที่กำหนดสำหรับการตรวจจับควัน
+const int smokeThreshold = 300;
+
+void setup() {
+  Serial.begin(115200);
+
+  // การตั้งค่า WiFi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("WiFi connected");
+
+  // ตั้งค่าพิน
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, LOW); // พัดลมปิดเริ่มต้น
+}
+
+void loop() {
+  int smokeValue = analogRead(smokeSensorPin);
+  Serial.print("Smoke Level: ");
+  Serial.println(smokeValue);
+
+  // ตรวจสอบค่าควัน
+  if (smokeValue > smokeThreshold) {
+    digitalWrite(relayPin, HIGH); // เปิดพัดลม
+    sendSMS(smokeValue);          // ส่งข้อความแจ้งเตือน
+  } else {
+    digitalWrite(relayPin, LOW); // ปิดพัดลม
+  }
+  delay(5000); // ตรวจสอบทุก 5 วินาที
+}
+
+void sendSMS(int smokeValue) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String url = "https://api.twilio.com/2010-04-01/Accounts/" + accountSID + "/Messages.json";
+    String auth = accountSID + ":" + authToken;
+    String message = "Fire detected! Smoke level: " + String(smokeValue);
+
+    http.begin(url);
+    http.setAuthorization(accountSID.c_str(), authToken.c_str());
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    String payload = "From=" + twilioPhone + "&To=" + userPhone + "&Body=" + message;
+    int httpResponseCode = http.POST(payload);
+
+    if (httpResponseCode > 0) {
+      Serial.println("SMS sent successfully");
+    } else {
+      Serial.print("Error sending SMS: ");
+      Serial.println(httpResponseCode);
+    }
+    http.end();
+  } else {
+    Serial.println("WiFi disconnected");
+  }
+}
